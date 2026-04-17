@@ -4,77 +4,38 @@ const app = express();
 const dotenv = require("dotenv");
 dotenv.config();
 
-const mongoose = require("mongoose");
-const Mongo_Uri = process.env.MONGO_URI;
+const cors = require("cors");
+app.use(cors({
+  origin: "http://localhost:5173", 
+  methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
+  credentials: true,
+}));
+
+
 const PORT = process.env.PORT || 5000;
 
-const jwt = require("jsonwebtoken");
+const connectDB = require("./Database/database");
+connectDB();
 
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+var cookieParser = require("cookie-parser");
+app.use(cookieParser());
 
-  // Dummy check (replace with DB)
-  if (email === "admin@gmail.com" && password === "123456") {
-    
-    const token = jwt.sign(
-      { email: email },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+const bodyParser = require("body-parser");
+app.use(bodyParser.json());
 
-    return res.json({ token });
-  }
+app.use("/api/auth", require("./routes/auth"));
 
-  res.status(401).json({ message: "Invalid credentials" });
-});
-
-const jwt = require("jsonwebtoken");
-
-const authMiddleware = (req, res, next) => {
-  const token = req.header("Authorization");
-
-  if (!token) {
-    return res.status(401).json({ message: "Access Denied. No token" });
-  }
-
-  try {
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = verified;
-    next(); // allow access
-  } catch (error) {
-    res.status(400).json({ message: "Invalid Token" });
-  }
-};
-
-app.get("/dashboard", authMiddleware, (req, res) => {
-  res.send("Welcome to Dashboard (Protected)");
-});
-
-app.get("/profile", authMiddleware, (req, res) => {
-  res.send("User Profile Data");
-});
-
-app.get("/", (req, res) => {
+app.post("/", (req, res) => {
     res.send("Hello World!");
 });
 
-app.use(express.json());
-
-const connectDB = async () => {
-    try {
-        await mongoose.connect(Mongo_Uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
-        console.log("MongoDB connected successfully");
-    } catch (error) {
-        console.error("MongoDB connection error:", error);
-        process.exit(1);
-    };
-}
-
-// connectDB();
-
+app.get("/api/jokes",(req,res) => {
+  const jokes = {
+    'one' : {name:'rud', 'age':19},
+    'two' : {name:"hii", 'age': 19},
+  }
+  res.send(jokes);
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

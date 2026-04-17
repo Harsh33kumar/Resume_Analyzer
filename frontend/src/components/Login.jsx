@@ -1,21 +1,32 @@
-import React from 'react'
+import React ,{ useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import axios from "axios";
 
 function Login() {
-  const [username, setUsername] = React.useState('')
-  const [password, setPassword] = React.useState('')
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    // Handle login logic here
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await axios.post("/api/auth/login", form);
+
+    localStorage.setItem("token", res.data.token);
+    if(res.data.success) {
+      alert("Login successful");
+    } else {
+      alert("Login failed");
+    }
+
+  };
   return (
 <>
 <div className = "ra_login_form">
   <h3>Login</h3>
   <form onSubmit={handleSubmit}>
-    <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-    <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+    <input type="email" placeholder="email"  onChange={e => setForm({...form, email: e.target.value})} />
+    <input type="password" placeholder="Password"  onChange={e => setForm({...form, password: e.target.value})} />
     <button type="submit">Login</button>
 
     <p><NavLink to ="/signup">Don't have an account? Sign Up</NavLink></p>

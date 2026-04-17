@@ -14,7 +14,6 @@ function App() {
 
   return (
     <>
-    <BrowserRouter>
       <Navbar />
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -26,7 +25,6 @@ function App() {
         <Route path="/resume_results" element={<Results />} />
       </Routes>
       <Footer />
-    </BrowserRouter>
     </>
   )
 }
